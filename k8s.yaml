@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: finalproject-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: finalproject
+  template:
+    metadata:
+      labels:
+        app: finalproject
+    spec:
+      containers:
+        - name: finalproject
+          image: corneliusps/finalproject
+          ports:
+            - containerPort: 8080
