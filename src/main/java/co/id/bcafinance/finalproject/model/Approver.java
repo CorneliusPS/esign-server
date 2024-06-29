@@ -13,6 +13,7 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -33,10 +34,18 @@ public class Approver {
     @JoinColumn(name = "IdUser")
     private User user;
 
+    @Column(name = "IsApproved")
     private boolean isApproved;
+
+
+    @Column(name = "SignedDate")
+    private Date signedDate;
 
     @Column(name = "Otp")
     private Integer otp;
+
+    @Column(name = "IsAuthenticated")
+    private boolean isAuthenticated;
 
     public Long getIdApprover() {
         return idApprover;
@@ -76,6 +85,22 @@ public class Approver {
 
     public void setOtp(Integer otp) {
         this.otp = otp;
+    }
+
+    public Date getSignedDate() {
+        return signedDate;
+    }
+
+    public void setSignedDate(Date signedDate) {
+        this.signedDate = signedDate;
+    }
+
+    public boolean isAuthenticated() {
+        return isAuthenticated;
+    }
+
+    public void setAuthenticated(boolean authenticated) {
+        isAuthenticated = authenticated;
     }
 }
     

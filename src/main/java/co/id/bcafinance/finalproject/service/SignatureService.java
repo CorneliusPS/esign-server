@@ -30,6 +30,7 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
+import java.util.Date;
 import java.util.Optional;
 
 @Transactional
@@ -78,6 +79,11 @@ public class SignatureService{
             return new ResponseHandler().generateResponse("Anda sudah menandatangani document ini", HttpStatus.BAD_REQUEST, null, "FV02004", request);
         }
 
+        // tolong check jika approver.isAuthenticated() == false
+        if (approver.isPresent() && !approver.get().isAuthenticated()) {
+            return new ResponseHandler().generateResponse("Anda belum melakukan verifikasi", HttpStatus.BAD_REQUEST, null, "FV02005", request);
+        }
+
         Signature signature = new Signature();
         BeanUtils.copyProperties(signatureRequestDTO, signature);
         try {
@@ -104,6 +110,7 @@ public class SignatureService{
             signatureRepo.save(signature);
             existDocument.get().setFileData(signatureRequestDTO.getSignatureData().getBytes());
             approver.get().setApproved(true);
+            approver.get().setSignedDate(new Date());
             approverRepo.save(approver.get());
 
             checkAllApprovers(existDocument.get());

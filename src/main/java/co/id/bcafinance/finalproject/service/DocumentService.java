@@ -254,6 +254,7 @@ public class DocumentService {
             newApprover.setDocument(document.get());
             newApprover.setUser(approver);
             newApprover.setApproved(false);
+            newApprover.setAuthenticated(false);
             approverList.add(newApprover);
         }
         approverRepo.saveAll(approverList);

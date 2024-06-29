@@ -21,7 +21,7 @@ import java.util.List;
 @Entity
 @Table(name = "MstDocument")
 
-public class Document {
+public class    Document {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -12,6 +12,8 @@ Version 1.0
 import co.id.bcafinance.finalproject.model.Document;
 import co.id.bcafinance.finalproject.model.User;
 
+import java.util.Date;
+
 public class GetApproverDTO {
     private Long idApprover;
     private Document document;
@@ -19,6 +21,8 @@ public class GetApproverDTO {
     private User idUser;
 
     private boolean isApproved;
+
+    private Date signedDate;
 
     public Long getIdApprover() {
         return idApprover;
@@ -50,6 +54,14 @@ public class GetApproverDTO {
 
     public void setApproved(boolean approved) {
         isApproved = approved;
+    }
+
+    public Date getSignedDate() {
+        return signedDate;
+    }
+
+    public void setSignedDate(Date signedDate) {
+        this.signedDate = signedDate;
     }
 }
     

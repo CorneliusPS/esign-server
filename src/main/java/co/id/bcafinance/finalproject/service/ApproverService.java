@@ -92,10 +92,6 @@ public class ApproverService {
 
         return new ResponseHandler().generateResponse("Berhasil mendapatkan data", HttpStatus.OK, approverDTOS.get(), null, request);
 
-
-
-
-
     }
 
     public ResponseEntity<Object> sendOtp(Long idApprover, String authorizationHeader, HttpServletRequest request) {
@@ -121,7 +117,7 @@ public class ApproverService {
 
 
         String[] strVerify = new String[3];
-        strVerify[0] = "Verifikasi Email";
+        strVerify[0] = "Verifikasi OTP";
         strVerify[1] = user.get().getFullName();
         strVerify[2] = String.valueOf(intVerification);
 
@@ -131,7 +127,7 @@ public class ApproverService {
                 new ExecuteSMTP().
                         sendSMTPToken(
                                 user.get().getEmail(),// email tujuan
-                                "TOKEN Verifikasi ",// judul email
+                                "OTP Verifikasi ",// judul email
                                 strVerify,//
                                 "ver_regis.html");// \\data\\ver_regis
                 System.out.println("Email Terkirim");
@@ -166,6 +162,7 @@ public class ApproverService {
         }
 
         approverData.get().setOtp(0);
+        approverData.get().setAuthenticated(true);
 
         approverRepo.save(approverData.get());
 

@@ -261,7 +261,7 @@ public class UserService implements UserDetailsService {
         Optional<User> opUser = userRepo.findTop1ByUsernameOrEmail(s,s);
         if(opUser.isEmpty()) {
             return null;
-        }
+        }   
         User userNext = opUser.get();
          /**
             PARAMETER KE 3 TIDAK MENGGUNAKAN ROLE DARI SPRINGSECURITY CORE
