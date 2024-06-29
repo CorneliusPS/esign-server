@@ -89,7 +89,7 @@ public class ExecuteSMTP {
                 String strContent = new ReadTextFileSB(pathFile).getContentFile();
                 strContent = strContent.replace("#JKVM3NH",strNotification[0]);//Kepentingan
                 strContent = strContent.replace("XF#31NN",strNotification[1]);//Nama Lengkap
-                strContent = strContent.replace("8U0_1GH$",strNotification[2]);// Path link
+                strContent = strContent.replace("8U0_1GH$",strNotification[2]);// Nama Dokumen
 
                 String [] strEmail = {mailAddress};
                 SMTPCore sc = new SMTPCore();

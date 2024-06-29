@@ -273,7 +273,7 @@ public class DocumentService {
             String[] strVerify = new String[3];
             strVerify[0] = "Document Approval Required";
             strVerify[1] = user.get().getFullName();
-            strVerify[2] = "http://localhost:4200";
+            strVerify[2] = document.get().getDocumentName();
 
             Thread first = new Thread(new Runnable() {
                 @Override
@@ -283,7 +283,7 @@ public class DocumentService {
                                     user.get().getEmail(),// email tujuan
                                     "Document Approval Notification",// judul email
                                     strVerify,//
-                                    "ver_regis.html");// \\data\\ver_regis
+                                    "notif_approval.html");// \\data\\ver_regis
                     System.out.println("Email Terkirim");
                 }
             });

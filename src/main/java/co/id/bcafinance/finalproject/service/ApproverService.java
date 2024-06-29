@@ -117,7 +117,7 @@ public class ApproverService {
 
 
         String[] strVerify = new String[3];
-        strVerify[0] = "Verifikasi OTP";
+        strVerify[0] = "OTP Verifikasi";
         strVerify[1] = user.get().getFullName();
         strVerify[2] = String.valueOf(intVerification);
 
@@ -129,7 +129,7 @@ public class ApproverService {
                                 user.get().getEmail(),// email tujuan
                                 "OTP Verifikasi ",// judul email
                                 strVerify,//
-                                "ver_regis.html");// \\data\\ver_regis
+                                "ver_otp.html");// \\data\\ver_regis
                 System.out.println("Email Terkirim");
             }
         });
