@@ -15,6 +15,7 @@ import co.id.bcafinance.finalproject.dto.ApproverDTO;
 import co.id.bcafinance.finalproject.dto.Document.GetDocumentPaginationDTO;
 import co.id.bcafinance.finalproject.dto.DocumentDTO;
 import co.id.bcafinance.finalproject.dto.SearchParamDTO;
+import co.id.bcafinance.finalproject.dto.auth.UserDTO;
 import co.id.bcafinance.finalproject.handler.ResponseHandler;
 import co.id.bcafinance.finalproject.model.Approver;
 import co.id.bcafinance.finalproject.model.Document;
@@ -24,6 +25,7 @@ import co.id.bcafinance.finalproject.repo.ApproverRepo;
 import co.id.bcafinance.finalproject.repo.DocumentRepo;
 import co.id.bcafinance.finalproject.repo.SignatureRepo;
 import co.id.bcafinance.finalproject.repo.UserRepo;
+import co.id.bcafinance.finalproject.util.ExecuteSMTP;
 import co.id.bcafinance.finalproject.util.TransformToDTO;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
@@ -250,14 +252,46 @@ public class DocumentService {
 
         List<Approver> approverList = new ArrayList<>();
         for (User approver : approvers) {
+            Optional<User> user = userRepo.findByIdUser(approver.getIdUser());
+
+            //convert user to user DTO
+            UserDTO userDTO = modelMapper.map(user.get(), UserDTO.class);
+
+            if (!user.isPresent()) {
+                return new ResponseHandler().generateResponse("User tidak ditemukan", HttpStatus.NOT_FOUND, null, "FV02001", request);
+            }
             Approver newApprover = new Approver();
             newApprover.setDocument(document.get());
-            newApprover.setUser(approver);
+            newApprover.setUser(user.get());
             newApprover.setApproved(false);
             newApprover.setAuthenticated(false);
             approverList.add(newApprover);
+
+
+
+            // send email notification to approver implement SMTP
+            String[] strVerify = new String[3];
+            strVerify[0] = "Document Approval Required";
+            strVerify[1] = user.get().getFullName();
+            strVerify[2] = "http://localhost:4200";
+
+            Thread first = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    new ExecuteSMTP().
+                            sendSMTPNotification(
+                                    user.get().getEmail(),// email tujuan
+                                    "Document Approval Notification",// judul email
+                                    strVerify,//
+                                    "ver_regis.html");// \\data\\ver_regis
+                    System.out.println("Email Terkirim");
+                }
+            });
+            first.start();
+
         }
         approverRepo.saveAll(approverList);
+
 
         return new ResponseHandler().generateResponse("Approver berhasil ditugaskan", HttpStatus.OK, null, null, request);
     }

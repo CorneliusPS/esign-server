@@ -33,7 +33,7 @@ public class AuditTrails {
     private Date timestamp;
 
     @ManyToOne
-    @JoinColumn(name = "User")
+    @JoinColumn(name = "IdUser")
     private User user;
 
     @ManyToOne

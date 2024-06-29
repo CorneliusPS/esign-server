@@ -25,6 +25,8 @@ public interface UserRepo extends JpaRepository<User, Long> {
 
     Page<User> findByIdUser(Pageable pageable, Long id);
 
+    Optional<User> findByIdUser(Long id);
+
     /**
      * Query untuk proses pencarian permintaan dengan opsi filter dan pagination
      */

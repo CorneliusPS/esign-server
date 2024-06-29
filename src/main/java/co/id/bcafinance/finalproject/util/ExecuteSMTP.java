@@ -79,4 +79,32 @@ public class ExecuteSMTP {
         }
         return true;
     }
+
+    public Boolean sendSMTPNotification(String mailAddress, String subject, String [] strNotification, String pathFile)
+    {
+        try
+        {
+            if(OtherConfig.getFlagSmtpActive().equalsIgnoreCase("y") && !mailAddress.equals(""))
+            {
+                String strContent = new ReadTextFileSB(pathFile).getContentFile();
+                strContent = strContent.replace("#JKVM3NH",strNotification[0]);//Kepentingan
+                strContent = strContent.replace("XF#31NN",strNotification[1]);//Nama Lengkap
+                strContent = strContent.replace("8U0_1GH$",strNotification[2]);// Path link
+
+                String [] strEmail = {mailAddress};
+                SMTPCore sc = new SMTPCore();
+                return  sc.sendMailWithAttachment(strEmail,
+                        subject,
+                        strContent,
+                        "SSL",null);
+            }
+        }
+        catch (Exception e)
+        {
+            strException[1]="sendSMTPNotification(String mailAddress, String subject, String purpose, String Path) -- LINE 38";
+            LoggingFile.exceptionStringz(strException,e, OtherConfig.getFlagLoging());
+            return false;
+        }
+        return true;
+    }
 }
