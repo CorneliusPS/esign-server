@@ -100,7 +100,8 @@ public class DocumentService {
 
         try {
             document.setUploadBy(user.get());
-            document.setDocumentStatus(Document.DocumentStatus.PENDING);
+            document.setDocumentStatus("Pending");
+            document.setFlagCount(0);
             document.setSigned(false);
             documentRepo.save(document);
         } catch (Exception e) {
@@ -251,6 +252,7 @@ public class DocumentService {
         List<User> approvers = userRepo.findAllById(userIds);
 
         List<Approver> approverList = new ArrayList<>();
+        
         for (User approver : approvers) {
             Optional<User> user = userRepo.findByIdUser(approver.getIdUser());
 

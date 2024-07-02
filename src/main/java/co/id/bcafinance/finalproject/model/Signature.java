@@ -56,7 +56,7 @@
     
         @Column(name = "ModifiedDate")
         private Date modifiedDate;
-    
+        
         /**
          End Group Audit trails
          */

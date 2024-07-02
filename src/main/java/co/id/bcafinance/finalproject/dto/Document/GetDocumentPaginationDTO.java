@@ -28,13 +28,8 @@ public class GetDocumentPaginationDTO {
 
     private Boolean isSigned;
 
-    private enum DocumentStatus {
-        PENDING,
-        APPROVED,
-        REJECTED
-    }
 
-    private DocumentStatus documentStatus;
+    private String  documentStatus;
 
     public Long getIdDocument() {
         return idDocument;
@@ -84,11 +79,11 @@ public class GetDocumentPaginationDTO {
         isSigned = signed;
     }
 
-    public DocumentStatus getDocumentStatus() {
+    public String getDocumentStatus() {
         return documentStatus;
     }
 
-    public void setDocumentStatus(DocumentStatus documentStatus) {
+    public void setDocumentStatus(String documentStatus) {
         this.documentStatus = documentStatus;
     }
 }

@@ -106,9 +106,14 @@ public class SignatureService{
 
 
 
+
         try {
             signatureRepo.save(signature);
             existDocument.get().setFileData(signatureRequestDTO.getSignatureData().getBytes());
+
+            Integer flagCount = existDocument.get().getFlagCount() +1;
+            existDocument.get().setFlagCount(flagCount);
+            existDocument.get().setDocumentStatus("Sign By " + user.get().getUsername() + " (" + flagCount + " of " + countApprover + ")");
             approver.get().setApproved(true);
             approver.get().setSignedDate(new Date());
             approverRepo.save(approver.get());
@@ -128,7 +133,7 @@ public class SignatureService{
 
         if (allApproved) {
             document.setSigned(true);
-            document.setDocumentStatus(Document.DocumentStatus.APPROVED);
+            document.setDocumentStatus("All Done");
             documentRepo.save(document);
             // Notify all approvers or relevant parties
             // Add any other logic needed when all approvers have signed the document

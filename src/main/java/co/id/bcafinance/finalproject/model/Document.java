@@ -44,19 +44,20 @@ public class    Document {
     @Column(name = "IsSigned")
     private Boolean isSigned;
 
-    @Column(name = "IsParallel")
-    private Boolean isParallel;
-
-
-    public enum DocumentStatus {
-        PENDING,
-        APPROVED,
-        REJECTED
+    public enum ApprovalType {
+        PARALLEL,
+        SERIAL
     }
-
     @Enumerated(EnumType.STRING)
+    @Column(name = "ApprovalType")
+    private ApprovalType approvalType;
+
+
     @Column(name = "DocumentStatus")
-    private DocumentStatus documentStatus;
+    private String documentStatus;
+
+    @Column(name = "FlagCount")
+    private Integer flagCount;
 
     /**
      Start Group Audit trails
@@ -160,20 +161,28 @@ public class    Document {
     }
 
 
-    public DocumentStatus getDocumentStatus() {
+    public String getDocumentStatus() {
         return documentStatus;
     }
 
-    public void setDocumentStatus(DocumentStatus documentStatus) {
+    public void setDocumentStatus(String documentStatus) {
         this.documentStatus = documentStatus;
     }
 
-    public Boolean getParallel() {
-        return isParallel;
+    public ApprovalType getApprovalType() {
+        return approvalType;
     }
 
-    public void setParallel(Boolean parallel) {
-        isParallel = parallel;
+    public void setApprovalType(ApprovalType approvalType) {
+        this.approvalType = approvalType;
+    }
+
+    public Integer getFlagCount() {
+        return flagCount;
+    }
+
+    public void setFlagCount(Integer flagCount) {
+        this.flagCount = flagCount;
     }
 }
     
