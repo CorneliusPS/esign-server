@@ -9,6 +9,8 @@ Created on 5/27/2024 11:21 AM
 Version 1.0
 */
 
+import java.util.Date;
+
 public class GetDocumentDTO {
     private Long idDocument;
 
@@ -21,6 +23,8 @@ public class GetDocumentDTO {
     private byte[] fileData;
 
     private Boolean isSigned;
+
+    private Date uploadDate;
 
 
     private String  documentStatus;
@@ -79,6 +83,14 @@ public class GetDocumentDTO {
 
     public void setDocumentStatus(String documentStatus) {
         this.documentStatus = documentStatus;
+    }
+
+    public Date getUploadDate() {
+        return uploadDate;
+    }
+
+    public void setUploadDate(Date uploadDate) {
+        this.uploadDate = uploadDate;
     }
 }
     

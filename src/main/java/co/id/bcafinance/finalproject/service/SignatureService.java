@@ -14,14 +14,9 @@ import co.id.bcafinance.finalproject.core.Crypto;
 import co.id.bcafinance.finalproject.core.security.JwtUtility;
 import co.id.bcafinance.finalproject.dto.Signature.SignatureRequestDTO;
 import co.id.bcafinance.finalproject.handler.ResponseHandler;
-import co.id.bcafinance.finalproject.model.Approver;
-import co.id.bcafinance.finalproject.model.Document;
-import co.id.bcafinance.finalproject.model.Signature;
-import co.id.bcafinance.finalproject.model.User;
-import co.id.bcafinance.finalproject.repo.ApproverRepo;
-import co.id.bcafinance.finalproject.repo.DocumentRepo;
-import co.id.bcafinance.finalproject.repo.SignatureRepo;
-import co.id.bcafinance.finalproject.repo.UserRepo;
+import co.id.bcafinance.finalproject.model.*;
+import co.id.bcafinance.finalproject.repo.*;
+import co.id.bcafinance.finalproject.util.ExecuteSMTP;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -45,6 +40,9 @@ public class SignatureService{
 
     @Autowired
     private UserRepo userRepo;
+
+    @Autowired
+    private LogDocumentRepo logDocumentRepo;
 
     @Autowired
     private JwtUtility jwtUtility;
@@ -128,14 +126,40 @@ public class SignatureService{
                 } else {
                     Optional<Approver> nextApprover = approverRepo.findByDocumentAndApprovalOrder(existDocument.get(), approver.get().getApprovalOrder() + 1);
                     nextApprover.get().setCurrent(true);
+                    // send notification to next approver
+                    Optional<User> nextUser = userRepo.findByIdUser(nextApprover.get().getUser().getIdUser());
+                    // send notification to nextUser
+
+                    String[] strVerify = new String[3];
+                    strVerify[0] = "Document Approval Required";
+                    strVerify[1] = nextUser.get().getFullName();
+                    strVerify[2] = nextApprover.get().getDocument().getDocumentName();
+
+                    Thread first = new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            new ExecuteSMTP().
+                                    sendSMTPNotification(
+                                            nextUser.get().getEmail(),// email tujuan
+                                            "Document Approval Notification",// judul email
+                                            strVerify,//
+                                            "notif_approval.html");// \\data\\ver_regis
+                            System.out.println("Email Terkirim");
+                        }
+                    });
+                    first.start();
+
+                    approverRepo.save(nextApprover.get());
                 }
             } else {
                 checkAllApprovers(existDocument.get());
+
             }
         } catch (Exception e) {
             return new ResponseHandler().generateResponse("Failed to save signature", HttpStatus.BAD_REQUEST, null, "FS0002", null);
         }
 
+        saveDocumentHistory(existDocument.get(), user.get(), "Sign", "Document signed by " + user.get().getUsername());
 
         return new ResponseHandler().generateResponse("Signature saved", HttpStatus.OK, null, null, null);
     }
@@ -168,6 +192,16 @@ public class SignatureService{
         }
 
         return new ResponseHandler().generateResponse("Success", HttpStatus.OK, signature.get(), null, request);
+    }
+
+    private void saveDocumentHistory(Document document, User user, String action, String description) {
+        LogDocument logDocument = new LogDocument();
+        logDocument.setDocument(document);
+        logDocument.setUser(user);
+        logDocument.setTimestamp(new Date());
+        logDocument.setAction(action);
+        logDocument.setDescription(description);
+        logDocumentRepo.save(logDocument);
     }
 }
     

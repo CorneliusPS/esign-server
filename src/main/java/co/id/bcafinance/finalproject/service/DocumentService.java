@@ -14,16 +14,11 @@ import co.id.bcafinance.finalproject.core.security.JwtUtility;
 import co.id.bcafinance.finalproject.dto.ApproverDTO;
 import co.id.bcafinance.finalproject.dto.Document.GetDocumentDTO;
 import co.id.bcafinance.finalproject.dto.DocumentDTO;
+import co.id.bcafinance.finalproject.dto.GetLogDocumentDTO;
 import co.id.bcafinance.finalproject.dto.SearchParamDTO;
 import co.id.bcafinance.finalproject.handler.ResponseHandler;
-import co.id.bcafinance.finalproject.model.Approver;
-import co.id.bcafinance.finalproject.model.Document;
-import co.id.bcafinance.finalproject.model.Signature;
-import co.id.bcafinance.finalproject.model.User;
-import co.id.bcafinance.finalproject.repo.ApproverRepo;
-import co.id.bcafinance.finalproject.repo.DocumentRepo;
-import co.id.bcafinance.finalproject.repo.SignatureRepo;
-import co.id.bcafinance.finalproject.repo.UserRepo;
+import co.id.bcafinance.finalproject.model.*;
+import co.id.bcafinance.finalproject.repo.*;
 import co.id.bcafinance.finalproject.util.ExecuteSMTP;
 import co.id.bcafinance.finalproject.util.TransformToDTO;
 import org.modelmapper.ModelMapper;
@@ -59,6 +54,9 @@ public class DocumentService {
 
     @Autowired
     private SignatureRepo signatureRepo;
+
+    @Autowired
+    private LogDocumentRepo logDocumentRepo;
 
     @Autowired
     private JwtUtility jwtUtility;
@@ -459,6 +457,33 @@ public class DocumentService {
         }
 
         return new ResponseHandler().generateResponse("Document ditemukan", HttpStatus.OK, document.get(), null, request);
+    }
+
+
+    private void saveDocumentHistory(Document document, User user, String changeType, String description) {
+        LogDocument logDocument = new LogDocument();
+        logDocument.setDocument(document);
+        logDocument.setUser(user);
+        logDocument.setTimestamp(new Date());
+        logDocument.setAction(changeType);
+        logDocument.setDescription(description);
+        logDocumentRepo.save(logDocument);
+    }
+
+    public ResponseEntity<Object> getLogDocument(Long idDocument, HttpServletRequest request) {
+        Optional<Document> document = documentRepo.findByIdDocument(idDocument);
+        if (!document.isPresent()) {
+            return new ResponseHandler().generateResponse("Document tidak ditemukan", HttpStatus.NOT_FOUND, null, "FV02001", request);
+        }
+
+        List<LogDocument> logDocuments = logDocumentRepo.findByDocument(document.get());
+        if (logDocuments.isEmpty()) {
+            return new ResponseHandler().generateResponse("Tidak ada log untuk document ini", HttpStatus.OK, null, "FV02002", request);
+        }
+
+        List<GetLogDocumentDTO> getLogDocumentDTOS = modelMapper.map(logDocuments, new TypeToken<List<GetLogDocumentDTO>>() {}.getType());
+
+        return new ResponseHandler().generateResponse("OK", HttpStatus.OK, getLogDocumentDTOS, null, request);
     }
 }
     
