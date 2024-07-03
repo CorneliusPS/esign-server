@@ -9,13 +9,7 @@ Created on 5/27/2024 11:21 AM
 Version 1.0
 */
 
-import co.id.bcafinance.finalproject.model.Document;
-
-import javax.persistence.Column;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-
-public class GetDocumentPaginationDTO {
+public class GetDocumentDTO {
     private Long idDocument;
 
     private String documentName;

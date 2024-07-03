@@ -79,6 +79,11 @@ public class SignatureService{
             return new ResponseHandler().generateResponse("Anda sudah menandatangani document ini", HttpStatus.BAD_REQUEST, null, "FV02004", request);
         }
 
+        // tolong check jika approver.isCurrent() == false
+        if (approver.isPresent() && !approver.get().isCurrent()) {
+            return new ResponseHandler().generateResponse("Saat ini belum giliran anda", HttpStatus.FORBIDDEN, null, "FV02002", request);
+        }
+
         // tolong check jika approver.isAuthenticated() == false
         if (approver.isPresent() && !approver.get().isAuthenticated()) {
             return new ResponseHandler().generateResponse("Anda belum melakukan verifikasi", HttpStatus.BAD_REQUEST, null, "FV02005", request);
@@ -100,25 +105,33 @@ public class SignatureService{
         signature.setDocument(existDocument.get());
         signature.setUser(user.get());
 
+        // lakukan pengecekan jika existDocument.get().getApprovalType() == "SERIAL"
+
+
         // count approver by document
         Long countApprover = approverRepo.findByDocument(existDocument.get()).stream().count();
-
-
-
-
 
         try {
             signatureRepo.save(signature);
             existDocument.get().setFileData(signatureRequestDTO.getSignatureData().getBytes());
 
-            Integer flagCount = existDocument.get().getFlagCount() +1;
-            existDocument.get().setFlagCount(flagCount);
+            Integer flagCount = existDocument.get().getFlagCount();
             existDocument.get().setDocumentStatus("Sign By " + user.get().getUsername() + " (" + flagCount + " of " + countApprover + ")");
+            existDocument.get().setFlagCount(flagCount + 1);
             approver.get().setApproved(true);
             approver.get().setSignedDate(new Date());
             approverRepo.save(approver.get());
 
-            checkAllApprovers(existDocument.get());
+            if (existDocument.get().getApprovalType() == Document.ApprovalType.SERIAL && approver.get().isApproved()) {
+                if (approver.get().getApprovalOrder() == countApprover.intValue()) {
+                    checkAllApprovers(existDocument.get());
+                } else {
+                    Optional<Approver> nextApprover = approverRepo.findByDocumentAndApprovalOrder(existDocument.get(), approver.get().getApprovalOrder() + 1);
+                    nextApprover.get().setCurrent(true);
+                }
+            } else {
+                checkAllApprovers(existDocument.get());
+            }
         } catch (Exception e) {
             return new ResponseHandler().generateResponse("Failed to save signature", HttpStatus.BAD_REQUEST, null, "FS0002", null);
         }

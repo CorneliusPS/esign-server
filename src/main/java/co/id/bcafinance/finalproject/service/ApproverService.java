@@ -63,7 +63,11 @@ public class ApproverService {
             return new ResponseHandler().generateResponse("Approver tidak ditemukan", HttpStatus.NOT_FOUND, null, "FV02001", request);
         }
 
-        List<Approver> approvers = approverRepo.findByUser(approver.get());
+        // get all approver by approver and isCurrent is true
+
+
+
+        List<Approver> approvers = approverRepo.findByUserAndIsCurrentTrue(approver.get());
         if (approvers.isEmpty()) {
             return new ResponseHandler().generateResponse("Tidak ada dokumen untuk approver ini", HttpStatus.NOT_FOUND, null, "FV02002", request);
         }

@@ -29,4 +29,8 @@ public interface ApproverRepo extends JpaRepository<Approver, Long>{
 
     Optional<Approver> findByIdApproverAndUser(Long idApprover, User user);
 
+    Optional<Approver> findByDocumentAndApprovalOrder(Document document, int i);
+
+    List<Approver> findByUserAndIsCurrentTrue(User user);
+
 }

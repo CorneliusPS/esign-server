@@ -59,6 +59,7 @@ public class DocumentController {
     @PostMapping("/upload")
     public ResponseEntity<Object> uploadDocument(@Valid @RequestBody MultipartFile file,
                                                  @RequestParam String documentName,
+                                                 @RequestParam String  approvalType,
                                                  @RequestHeader("Authorization") String authorizationHeader,
                                                  HttpServletRequest request) {
         DocumentDTO documentDTO = new DocumentDTO();
@@ -66,6 +67,8 @@ public class DocumentController {
         documentDTO.setFileName(file.getOriginalFilename());
         documentDTO.setFileType(file.getContentType());
         documentDTO.setFileData(file);
+        documentDTO.setApprovalType(approvalType);
+
         return documentService.uploadDocument(documentDTO, authorizationHeader, request);
     }
 

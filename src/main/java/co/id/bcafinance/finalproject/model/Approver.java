@@ -47,6 +47,13 @@ public class Approver {
     @Column(name = "IsAuthenticated")
     private boolean isAuthenticated;
 
+    @Column(name = "ApprovalOrder")
+    private Integer approvalOrder;
+
+    // flag untuk menandankan sekarang giliran user ini untuk approve
+    @Column(name = "IsCurrent")
+    private boolean isCurrent;
+
     public Long getIdApprover() {
         return idApprover;
     }
@@ -101,6 +108,22 @@ public class Approver {
 
     public void setAuthenticated(boolean authenticated) {
         isAuthenticated = authenticated;
+    }
+
+    public Integer getApprovalOrder() {
+        return approvalOrder;
+    }
+
+    public void setApprovalOrder(Integer approvalOrder) {
+        this.approvalOrder = approvalOrder;
+    }
+
+    public boolean isCurrent() {
+        return isCurrent;
+    }
+
+    public void setCurrent(boolean current) {
+        isCurrent = current;
     }
 }
     

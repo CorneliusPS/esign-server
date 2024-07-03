@@ -35,7 +35,7 @@ public class ApproverController {
 
     // get all approver by user id
     @GetMapping("/get-all-by-user")
-    public ResponseEntity<Object> getOneDocument(@RequestHeader("Authorization") String authorizationHeader, HttpServletRequest request) {
+    public ResponseEntity<Object> getAllByUser(@RequestHeader("Authorization") String authorizationHeader, HttpServletRequest request) {
         return approverService.getAllByUser(authorizationHeader, request);
     }
 

@@ -12,10 +12,9 @@ Version 1.0
 import co.id.bcafinance.finalproject.core.Crypto;
 import co.id.bcafinance.finalproject.core.security.JwtUtility;
 import co.id.bcafinance.finalproject.dto.ApproverDTO;
-import co.id.bcafinance.finalproject.dto.Document.GetDocumentPaginationDTO;
+import co.id.bcafinance.finalproject.dto.Document.GetDocumentDTO;
 import co.id.bcafinance.finalproject.dto.DocumentDTO;
 import co.id.bcafinance.finalproject.dto.SearchParamDTO;
-import co.id.bcafinance.finalproject.dto.auth.UserDTO;
 import co.id.bcafinance.finalproject.handler.ResponseHandler;
 import co.id.bcafinance.finalproject.model.Approver;
 import co.id.bcafinance.finalproject.model.Document;
@@ -101,8 +100,17 @@ public class DocumentService {
         try {
             document.setUploadBy(user.get());
             document.setDocumentStatus("Pending");
-            document.setFlagCount(0);
+            document.setFlagCount(1);
             document.setSigned(false);
+
+            if (documentDTO.getApprovalType().equalsIgnoreCase("SERIAL")) {
+                document.setApprovalType(Document.ApprovalType.SERIAL);
+            } else if (documentDTO.getApprovalType().equalsIgnoreCase("PARALLEL")) {
+                document.setApprovalType(Document.ApprovalType.PARALLEL);
+            } else {
+                return new ResponseHandler().generateResponse("Approval Type tidak valid", HttpStatus.BAD_REQUEST, null, "FV02005", request);
+            }
+
             documentRepo.save(document);
         } catch (Exception e) {
             return new ResponseHandler().generateResponse("Terjadi kesalahan saat menyimpan document", HttpStatus.INTERNAL_SERVER_ERROR, null, "FE03001", request);
@@ -174,8 +182,8 @@ public class DocumentService {
                             request);
         }
 
-        List<GetDocumentPaginationDTO> ltDocumentDTO =
-                modelMapper.map(documentList, new TypeToken<List<GetDocumentPaginationDTO>>() {
+        List<GetDocumentDTO> ltDocumentDTO =
+                modelMapper.map(documentList, new TypeToken<List<GetDocumentDTO>>() {
                 }.getType());
         mapResult = transformToDTO.transformObject(mapResult,
                 ltDocumentDTO,
@@ -252,44 +260,62 @@ public class DocumentService {
         List<User> approvers = userRepo.findAllById(userIds);
 
         List<Approver> approverList = new ArrayList<>();
-        
+
+        int order = 1;
         for (User approver : approvers) {
             Optional<User> user = userRepo.findByIdUser(approver.getIdUser());
 
-            //convert user to user DTO
-            UserDTO userDTO = modelMapper.map(user.get(), UserDTO.class);
+
 
             if (!user.isPresent()) {
                 return new ResponseHandler().generateResponse("User tidak ditemukan", HttpStatus.NOT_FOUND, null, "FV02001", request);
             }
+
             Approver newApprover = new Approver();
             newApprover.setDocument(document.get());
             newApprover.setUser(user.get());
             newApprover.setApproved(false);
             newApprover.setAuthenticated(false);
+
+            if (document.get().getApprovalType() == Document.ApprovalType.SERIAL) {
+
+                if (order == 1) {
+                    newApprover.setCurrent(true);
+                } else {
+                    newApprover.setCurrent(false);
+                }
+                newApprover.setApprovalOrder(order);
+                order++;
+
+            } else if (document.get().getApprovalType() == Document.ApprovalType.PARALLEL) {
+                newApprover.setApprovalOrder(1);
+                newApprover.setCurrent(true);
+            }
             approverList.add(newApprover);
 
+            // lakukan send email notification jika current = true
 
+            if (newApprover.isCurrent()) {
+                // send email notification to approver implement SMTP
+                String[] strVerify = new String[3];
+                strVerify[0] = "Document Approval Required";
+                strVerify[1] = user.get().getFullName();
+                strVerify[2] = document.get().getDocumentName();
 
-            // send email notification to approver implement SMTP
-            String[] strVerify = new String[3];
-            strVerify[0] = "Document Approval Required";
-            strVerify[1] = user.get().getFullName();
-            strVerify[2] = document.get().getDocumentName();
-
-            Thread first = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    new ExecuteSMTP().
-                            sendSMTPNotification(
-                                    user.get().getEmail(),// email tujuan
-                                    "Document Approval Notification",// judul email
-                                    strVerify,//
-                                    "notif_approval.html");// \\data\\ver_regis
-                    System.out.println("Email Terkirim");
-                }
-            });
-            first.start();
+                Thread first = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        new ExecuteSMTP().
+                                sendSMTPNotification(
+                                        user.get().getEmail(),// email tujuan
+                                        "Document Approval Notification",// judul email
+                                        strVerify,//
+                                        "notif_approval.html");// \\data\\ver_regis
+                        System.out.println("Email Terkirim");
+                    }
+                });
+                first.start();
+            }
 
         }
         approverRepo.saveAll(approverList);
@@ -363,7 +389,7 @@ public class DocumentService {
             documents.add(a.getDocument());
         }
 
-        List<GetDocumentPaginationDTO> documentDTOs = modelMapper.map(documents, new TypeToken<List<GetDocumentPaginationDTO>>() {}.getType());
+        List<GetDocumentDTO> documentDTOs = modelMapper.map(documents, new TypeToken<List<GetDocumentDTO>>() {}.getType());
 
         return new ResponseHandler().generateResponse("OK", HttpStatus.OK, documentDTOs, null, request);
     }
@@ -392,7 +418,7 @@ public class DocumentService {
                     .generateResponse("DATA TIDAK DITEMUKAN", HttpStatus.NOT_FOUND, null, "X-99-002", request);
         }
 
-        List<GetDocumentPaginationDTO> ltDocumentDTO = modelMapper.map(documentList, new TypeToken<List<GetDocumentPaginationDTO>>() {}.getType());
+        List<GetDocumentDTO> ltDocumentDTO = modelMapper.map(documentList, new TypeToken<List<GetDocumentDTO>>() {}.getType());
         mapResult = transformToDTO.transformObject(mapResult, ltDocumentDTO, documentPage, "uploadBy", uploaderId, listSearchParamDTO);
 
         return new ResponseHandler().generateResponse("OK", HttpStatus.OK, mapResult, null, request);
@@ -412,7 +438,7 @@ public class DocumentService {
             return new ResponseHandler().generateResponse("Tidak ada dokumen untuk uploader ini", HttpStatus.NOT_FOUND, null, "FV02002", request);
         }
 
-        List<GetDocumentPaginationDTO> documentDTOs = modelMapper.map(documents, new TypeToken<List<GetDocumentPaginationDTO>>() {}.getType());
+        List<GetDocumentDTO> documentDTOs = modelMapper.map(documents, new TypeToken<List<GetDocumentDTO>>() {}.getType());
 
         return new ResponseHandler().generateResponse("OK", HttpStatus.OK, documentDTOs, null, request);
     }
