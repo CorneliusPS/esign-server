@@ -101,7 +101,7 @@ public class DocumentController {
     public ResponseEntity<Object> getLogDocument(@PathVariable Long idDocument, HttpServletRequest request) {
         return documentService.getLogDocument(idDocument, request);
     }
-
+    
     @GetMapping("/get-all/{page}/{sort}/{sortBy}")
     public ResponseEntity<Object> getAllDocumentPagination(@PathVariable(value = "page") Integer page,
                                                            @PathVariable(value = "sort") String sort,

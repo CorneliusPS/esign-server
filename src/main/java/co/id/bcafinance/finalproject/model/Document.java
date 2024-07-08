@@ -27,6 +27,13 @@ public class    Document {
     @Column(name = "IdDocument")
     private Long idDocument;
 
+    @Column(name = "DocumentSign")
+    private String documentSign;
+
+    // List User yang telah menandatangani dokumen, nanti nya akan diisikan string saat setelah user melakukan tanda tangan
+    @Column(name = "StatusSignedUser")
+    private String statusSignedUser;
+
     @Column(name = "DocumentName")
     private String documentName;
 
@@ -57,6 +64,10 @@ public class    Document {
 
     @Column(name = "FlagCount")
     private Integer flagCount;
+
+    @Column(name = "NumberOfApprovers")
+    private Integer numberOfApprovers;
+
 
     /**
      Start Group Audit trails
@@ -182,6 +193,30 @@ public class    Document {
 
     public void setFlagCount(Integer flagCount) {
         this.flagCount = flagCount;
+    }
+
+    public String getDocumentSign() {
+        return documentSign;
+    }
+
+    public void setDocumentSign(String documentSign) {
+        this.documentSign = documentSign;
+    }
+
+    public String getStatusSignedUser() {
+        return statusSignedUser;
+    }
+
+    public void setStatusSignedUser(String statusSignedUser) {
+        this.statusSignedUser = statusSignedUser;
+    }
+
+    public Integer getNumberOfApprovers() {
+        return numberOfApprovers;
+    }
+
+    public void setNumberOfApprovers(Integer numberOfApprovers) {
+        this.numberOfApprovers = numberOfApprovers;
     }
 }
     

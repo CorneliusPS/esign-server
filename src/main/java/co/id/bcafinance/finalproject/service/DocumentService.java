@@ -96,10 +96,15 @@ public class DocumentService {
         }
 
         try {
+
+            // Buatkan sebuah variabel bernama DocumentSign yang dimana DocumentSign ini merupakan string acak yang akan menjadi identitas dari document yang diupload
+            String DocumentSign = UUID.randomUUID().toString();
+
             document.setUploadBy(user.get());
             document.setDocumentStatus("Pending");
             document.setFlagCount(1);
             document.setSigned(false);
+            document.setDocumentSign(DocumentSign);
 
             if (documentDTO.getApprovalType().equalsIgnoreCase("SERIAL")) {
                 document.setApprovalType(Document.ApprovalType.SERIAL);
@@ -259,6 +264,8 @@ public class DocumentService {
 
         List<Approver> approverList = new ArrayList<>();
 
+        int countApprover = approvers.size();
+
         int order = 1;
         for (User approver : approvers) {
             Optional<User> user = userRepo.findByIdUser(approver.getIdUser());
@@ -317,6 +324,8 @@ public class DocumentService {
 
         }
         approverRepo.saveAll(approverList);
+
+        document.get().setNumberOfApprovers(countApprover);
 
 
         return new ResponseHandler().generateResponse("Approver berhasil ditugaskan", HttpStatus.OK, null, null, request);

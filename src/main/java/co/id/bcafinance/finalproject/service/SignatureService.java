@@ -116,6 +116,7 @@ public class SignatureService{
             Integer flagCount = existDocument.get().getFlagCount();
             existDocument.get().setDocumentStatus("Sign By " + user.get().getUsername() + " (" + flagCount + " of " + countApprover + ")");
             existDocument.get().setFlagCount(flagCount + 1);
+            existDocument.get().setStatusSignedUser(existDocument.get().getStatusSignedUser() + user.get().getUsername() + ", ");
             approver.get().setApproved(true);
             approver.get().setSignedDate(new Date());
             approverRepo.save(approver.get());
@@ -152,7 +153,10 @@ public class SignatureService{
                     approverRepo.save(nextApprover.get());
                 }
             } else {
-                checkAllApprovers(existDocument.get());
+                boolean allApproved = checkAllApprovers(existDocument.get());
+                if (allApproved) {
+                    return new ResponseHandler().generateResponse("All User Approved", HttpStatus.OK, null, null, null);
+                }
 
             }
         } catch (Exception e) {
@@ -161,10 +165,11 @@ public class SignatureService{
 
         saveDocumentHistory(existDocument.get(), user.get(), "Sign", "Document signed by " + user.get().getUsername());
 
+
         return new ResponseHandler().generateResponse("Signature saved", HttpStatus.OK, null, null, null);
     }
 
-    private void checkAllApprovers(Document document) {
+    private boolean checkAllApprovers(Document document) {
         boolean allApproved = approverRepo.findByDocument(document).stream()
                 .allMatch(Approver::isApproved);
 
@@ -172,9 +177,10 @@ public class SignatureService{
             document.setSigned(true);
             document.setDocumentStatus("All Done");
             documentRepo.save(document);
-            // Notify all approvers or relevant parties
-            // Add any other logic needed when all approvers have signed the document
+            return true;
+
         }
+        return false;
     }
 
     public ResponseEntity<Object> getOneSignature(Long idSignature, String authorizationHeader, HttpServletRequest request) {
