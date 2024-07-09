@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 @Transactional
@@ -109,6 +110,11 @@ public class SignatureService{
         // count approver by document
         Long countApprover = approverRepo.findByDocument(existDocument.get()).stream().count();
 
+        List<Approver> approvers = approverRepo.findByDocument(existDocument.get());
+
+// Cek apakah user saat ini adalah approver terakhir
+        boolean isLastApprover = approvers.get(approvers.size() - 1).getUser().equals(user.get());
+
         try {
             signatureRepo.save(signature);
             existDocument.get().setFileData(signatureRequestDTO.getSignatureData().getBytes());
@@ -116,9 +122,14 @@ public class SignatureService{
             Integer flagCount = existDocument.get().getFlagCount();
             existDocument.get().setDocumentStatus("Sign By " + user.get().getUsername() + " (" + flagCount + " of " + countApprover + ")");
             existDocument.get().setFlagCount(flagCount + 1);
-            existDocument.get().setStatusSignedUser(existDocument.get().getStatusSignedUser() + user.get().getUsername() + ", ");
             approver.get().setApproved(true);
             approver.get().setSignedDate(new Date());
+            // Jika user saat ini adalah approver terakhir, maka jangan tambahkan koma di belakang
+            if (isLastApprover) {
+                existDocument.get().setStatusSignedUser(existDocument.get().getStatusSignedUser() + user.get().getUsername());
+            } else {
+                existDocument.get().setStatusSignedUser(existDocument.get().getStatusSignedUser() + user.get().getUsername() + ", ");
+            }
             approverRepo.save(approver.get());
 
             if (existDocument.get().getApprovalType() == Document.ApprovalType.SERIAL && approver.get().isApproved()) {

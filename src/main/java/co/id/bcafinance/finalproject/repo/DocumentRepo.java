@@ -30,4 +30,7 @@ public interface DocumentRepo extends JpaRepository<Document, Long> {
     Page<Document> findByUploadBy_IdUser(long l, Pageable pageable);
 
     List<Document> findByUploadBy(User user);
+
+    List<Document> findByIsSigned(boolean b);
+
 }

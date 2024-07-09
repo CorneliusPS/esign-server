@@ -13,6 +13,7 @@ import co.id.bcafinance.finalproject.core.Crypto;
 import co.id.bcafinance.finalproject.core.security.JwtUtility;
 import co.id.bcafinance.finalproject.dto.ApproverDTO;
 import co.id.bcafinance.finalproject.dto.Document.GetDocumentDTO;
+import co.id.bcafinance.finalproject.dto.Document.GetDocumentSignedDTO;
 import co.id.bcafinance.finalproject.dto.DocumentDTO;
 import co.id.bcafinance.finalproject.dto.GetLogDocumentDTO;
 import co.id.bcafinance.finalproject.dto.SearchParamDTO;
@@ -105,6 +106,7 @@ public class DocumentService {
             document.setFlagCount(1);
             document.setSigned(false);
             document.setDocumentSign(DocumentSign);
+            document.setStatusSignedUser("");
 
             if (documentDTO.getApprovalType().equalsIgnoreCase("SERIAL")) {
                 document.setApprovalType(Document.ApprovalType.SERIAL);
@@ -493,6 +495,18 @@ public class DocumentService {
         List<GetLogDocumentDTO> getLogDocumentDTOS = modelMapper.map(logDocuments, new TypeToken<List<GetLogDocumentDTO>>() {}.getType());
 
         return new ResponseHandler().generateResponse("OK", HttpStatus.OK, getLogDocumentDTOS, null, request);
+    }
+
+
+    public ResponseEntity<Object> getAllSignedDocument(HttpServletRequest request) {
+        List<Document> documents = documentRepo.findByIsSigned(true);
+        if (documents.isEmpty()) {
+            return new ResponseHandler().generateResponse("Tidak ada dokumen yang sudah ditandatangani", HttpStatus.NOT_FOUND, null, "FV02001", request);
+        }
+
+        List<GetDocumentSignedDTO> documentSignedDTOS = modelMapper.map(documents, new TypeToken<List<GetDocumentSignedDTO>>() {}.getType());
+
+        return new ResponseHandler().generateResponse("OK", HttpStatus.OK, documentSignedDTOS, null, request);
     }
 }
     

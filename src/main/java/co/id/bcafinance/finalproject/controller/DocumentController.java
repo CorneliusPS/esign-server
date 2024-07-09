@@ -162,6 +162,12 @@ public class DocumentController {
     public ResponseEntity<Object> getOneDocument(@PathVariable Long idDocument, @RequestHeader("Authorization") String authorizationHeader, HttpServletRequest request) {
         return documentService.getOneDocument(idDocument, authorizationHeader, request);
     }
+
+    // Get All Document Signed
+    @GetMapping("/get-all-signed")
+    public ResponseEntity<Object> getAllSignedDocument(@RequestHeader("Authorization") String authorizationHeader, HttpServletRequest request) {
+        return documentService.getAllSignedDocument(request);
+    }
 }
     
 

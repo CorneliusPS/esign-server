@@ -9,24 +9,22 @@ Created on 5/27/2024 11:21 AM
 Version 1.0
 */
 
+import javax.persistence.Column;
 import java.util.Date;
 
-public class GetDocumentDTO {
+public class GetDocumentSignedDTO {
     private Long idDocument;
+
+    private String documentSign;
 
     private String documentName;
 
-    private String fileName;
-
-    private String fileType;
-
     private byte[] fileData;
+
+    private String statusSignedUser;
 
     private Boolean isSigned;
 
-    private Date uploadDate;
-
-    private String  documentStatus;
 
     public Long getIdDocument() {
         return idDocument;
@@ -34,14 +32,6 @@ public class GetDocumentDTO {
 
     public void setIdDocument(Long idDocument) {
         this.idDocument = idDocument;
-    }
-
-    public String getFileName() {
-        return fileName;
-    }
-
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
     }
 
     public String getDocumentName() {
@@ -52,13 +42,6 @@ public class GetDocumentDTO {
         this.documentName = documentName;
     }
 
-    public String getFileType() {
-        return fileType;
-    }
-
-    public void setFileType(String fileType) {
-        this.fileType = fileType;
-    }
 
     public byte[] getFileData() {
         return fileData;
@@ -76,20 +59,20 @@ public class GetDocumentDTO {
         isSigned = signed;
     }
 
-    public String getDocumentStatus() {
-        return documentStatus;
+    public String getDocumentSign() {
+        return documentSign;
     }
 
-    public void setDocumentStatus(String documentStatus) {
-        this.documentStatus = documentStatus;
+    public void setDocumentSign(String documentSign) {
+        this.documentSign = documentSign;
     }
 
-    public Date getUploadDate() {
-        return uploadDate;
+    public String getStatusSignedUser() {
+        return statusSignedUser;
     }
 
-    public void setUploadDate(Date uploadDate) {
-        this.uploadDate = uploadDate;
+    public void setStatusSignedUser(String statusSignedUser) {
+        this.statusSignedUser = statusSignedUser;
     }
 }
     
